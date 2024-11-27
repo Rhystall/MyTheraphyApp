@@ -13,7 +13,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      useLegacyColorScheme: false,
       iconSize: 40,
       showSelectedLabels: false,
       showUnselectedLabels: false,
@@ -35,6 +34,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
               child: FloatingActionButton(
                 onPressed: () {
                   // Add button pressed
+                  print('Test jalan ngga');
                 },
                 backgroundColor: ColorCollections.primaryDarkBlue,
                 child: const Icon(Icons.add,
@@ -44,9 +44,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             label: 'Add Pills'),
         BottomNavigationBarItem(
           icon: Image.asset(
-            'assets/icons/ic_pills.png',
-            width: 24,
-            height: 24,
+            'lib/assets/ic_pills.png',
+            width: 40,
+            height: 40,
             color: Colors.black,
           ),
           label: 'My Pills',

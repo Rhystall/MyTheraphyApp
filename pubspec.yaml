@@ -49,8 +49,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-  # assets:
-    # - icons/ic_pills.png
+  assets:
+    - lib/assets/ic_pills.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
