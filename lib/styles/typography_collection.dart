@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TypographyCollection {
-  static const TextStyle h1 = TextStyle(
-    fontFamily: 'Poppins',
-    fontSize: 14,
+  static final TextStyle h1 = GoogleFonts.poppins(
+    fontSize: 24,
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle sh1 = TextStyle(
-    fontFamily: 'Poppins',
-    fontSize: 14,
+  static final TextStyle sh1 = GoogleFonts.poppins(
+    fontSize: 24,
     fontWeight: FontWeight.normal,
   );
 
-  static const TextStyle h2 = TextStyle(
-    fontFamily: 'Poppins',
-    fontSize: 10,
+  static final TextStyle h2 = GoogleFonts.poppins(
+    fontSize: 16,
     fontWeight: FontWeight.normal,
   );
 
-  static const TextStyle italic = TextStyle(
-    fontFamily: 'Poppins',
-    fontSize: 10,
+  static final TextStyle italic = GoogleFonts.poppins(
+    fontSize: 16,
     fontStyle: FontStyle.italic,
   );
 }
