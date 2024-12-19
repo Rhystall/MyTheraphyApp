@@ -12,6 +12,11 @@ class TypographyCollection {
     fontWeight: FontWeight.normal,
   );
 
+  static final TextStyle sh2 = GoogleFonts.poppins(
+    fontSize: 20,
+    fontWeight: FontWeight.normal,
+  );
+
   static final TextStyle h2 = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.normal,
