@@ -11,4 +11,5 @@ class ColorCollections {
   static const Color accentBlue = Color(0xFF449DD1); // Blue
   static const Color accentDarkBlack = Color(0xFF181C14); // Dark Black
   static const Color accentRed = Color(0xFF0E0E52); // Red
+  static const Color accentGray = Color(0xFFEEEEEE); // Light Gray
 }

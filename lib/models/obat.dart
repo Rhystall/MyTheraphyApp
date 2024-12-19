@@ -1,6 +1,7 @@
 class Obat {
   final String nama; // Nama obat
-  final DateTime tanggal; // Tanggal konsumsi
+  final DateTime tanggalMulai; // Tanggal mulai konsumsi
+  final DateTime tanggalAkhir; // Tanggal akhir konsumsi
   final int jumlah; // Jumlah obat
   final int dosis; // Berapa kali sehari
   final List<String> waktu; // List waktu konsumsi (misalnya ["10:00", "20:00"])
@@ -9,7 +10,8 @@ class Obat {
 
   Obat({
     required this.nama,
-    required this.tanggal,
+    required this.tanggalMulai,
+    required this.tanggalAkhir,
     required this.jumlah,
     required this.dosis,
     required this.waktu,
@@ -21,7 +23,8 @@ class Obat {
   Map<String, dynamic> toJson() {
     return {
       'nama': nama,
-      'tanggal': tanggal.toIso8601String(),
+      'tanggalMulai': tanggalMulai.toIso8601String(),
+      'tanggalAkhir': tanggalAkhir.toIso8601String(),
       'jumlah': jumlah,
       'dosis': dosis,
       'waktu': waktu,
@@ -34,7 +37,8 @@ class Obat {
   factory Obat.fromJson(Map<String, dynamic> json) {
     return Obat(
       nama: json['nama'],
-      tanggal: DateTime.parse(json['tanggal']),
+      tanggalMulai: DateTime.parse(json['tanggalMulai']),
+      tanggalAkhir: DateTime.parse(json['tanggalAkhir']),
       jumlah: json['jumlah'],
       dosis: json['dosis'],
       waktu: List<String>.from(json['waktu']),

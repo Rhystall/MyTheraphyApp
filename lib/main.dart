@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/date_controller.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
+import 'package:my_theraphy/pages/add_pills.dart';
+import 'package:my_theraphy/pages/add_schedule.dart';
 import 'package:my_theraphy/pages/home_page.dart';
 
 void main() {
@@ -22,7 +24,12 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      initialRoute: '/home',
+      getPages: [
+        GetPage(name: '/home', page: () => HomePage()),
+        GetPage(name: '/add_pills', page: () => AddPillsPage()),
+        GetPage(name: '/add_schedule', page: () => AddSchedulePage()),
+      ],
     );
   }
 }

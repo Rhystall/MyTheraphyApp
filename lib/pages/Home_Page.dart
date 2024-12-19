@@ -55,6 +55,14 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: Obx(() {
               final obatHariIni = obatController.obatHariIni;
+
+              // Tambahkan logging untuk debugging
+              print("Obat Hari Ini: ${obatHariIni.length}");
+              for (var obat in obatHariIni) {
+                print(
+                    "Obat: ${obat.nama}, Tanggal: ${obat.tanggalMulai} - ${obat.tanggalAkhir}");
+              }
+
               if (obatHariIni.isEmpty) {
                 return Center(
                   child: Text(

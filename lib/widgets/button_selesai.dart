@@ -15,8 +15,8 @@ class ButtonSelesai extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        width: 80,
-        height: 30,
+        width: 150,
+        height: 50,
         decoration: BoxDecoration(
           color: ColorCollections.primaryGray,
           borderRadius: BorderRadius.circular(100),

@@ -9,7 +9,7 @@ class DateSelectorController extends GetxController {
     selectedDate.value = date;
   }
 
-  // Menghitung jumlah hari dalam bulan (aku ae gareti co gpt iki)
+  // Menghitung jumlah hari dalam bulan
   int daysInMonth(DateTime date) {
     var beginningNextMonth = (date.month < 12)
         ? DateTime(date.year, date.month + 1, 1)

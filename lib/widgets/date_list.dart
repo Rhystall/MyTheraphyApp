@@ -35,37 +35,115 @@ class _DateSelectorState extends State<DateSelector> {
     );
   }
 
+  void _showMonthYearPickerDialog() {
+    // Gunakan Obx untuk mengamati perubahan bulan dan tahun
+    int selectedYear = controller.selectedDate.value.year;
+    int selectedMonth = controller.selectedDate.value.month;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title:
+                  Text("Pilih Bulan & Tahun", style: TypographyCollection.h1),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Dropdown untuk bulan
+                  DropdownButton<int>(
+                    value: selectedMonth,
+                    items: List.generate(12, (index) {
+                      return DropdownMenuItem(
+                        value: index + 1,
+                        child: Text(
+                          _getMonthName(index + 1),
+                          style: TypographyCollection.sh1,
+                        ),
+                      );
+                    }),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedMonth = value; // Perbarui bulan yang dipilih
+                        });
+                      }
+                    },
+                  ),
+                  // Dropdown untuk tahun
+                  DropdownButton<int>(
+                    value: selectedYear,
+                    items: List.generate(50, (index) {
+                      int year = DateTime.now().year - 25 + index;
+                      return DropdownMenuItem(
+                        value: year,
+                        child: Text(
+                          year.toString(),
+                          style: TypographyCollection.sh1,
+                        ),
+                      );
+                    }),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedYear = value; // Perbarui tahun yang dipilih
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Batal", style: TypographyCollection.sh2),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Perbarui tanggal di controller
+                    controller.onDateSelected(
+                      DateTime(selectedYear, selectedMonth, 1),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Text("Pilih", style: TypographyCollection.h1),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember"
+    ];
+    return months[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<DateTime> dates = List.generate(
-      controller.daysInMonth(controller.selectedDate.value),
-      (index) => DateTime(
-        controller.selectedDate.value.year,
-        controller.selectedDate.value.month,
-        index + 1,
-      ),
-    );
-
-    String getMonthName(int month) {
-      const months = [
-        "Januari",
-        "Februari",
-        "Maret",
-        "April",
-        "Mei",
-        "Juni",
-        "Juli",
-        "Agustus",
-        "September",
-        "Oktober",
-        "November",
-        "Desember"
-      ];
-      return months[month - 1];
-    }
-
     return Obx(() {
       DateTime selectedDate = controller.selectedDate.value;
+
+      List<DateTime> dates = List.generate(
+        controller.daysInMonth(selectedDate),
+        (index) => DateTime(selectedDate.year, selectedDate.month, index + 1),
+      );
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +154,7 @@ class _DateSelectorState extends State<DateSelector> {
             child: Row(
               children: [
                 Text(
-                  "${getMonthName(selectedDate.month)}",
+                  _getMonthName(selectedDate.month),
                   style: TypographyCollection.h1,
                 ),
                 const SizedBox(width: 5),
@@ -84,7 +162,10 @@ class _DateSelectorState extends State<DateSelector> {
                   "${selectedDate.year}",
                   style: TypographyCollection.sh1,
                 ),
-                const Icon(Icons.keyboard_arrow_down),
+                IconButton(
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  onPressed: _showMonthYearPickerDialog,
+                ),
               ],
             ),
           ),
@@ -101,7 +182,7 @@ class _DateSelectorState extends State<DateSelector> {
                 bool isSelected = dates[index].day == selectedDate.day;
                 return GestureDetector(
                   onTap: () {
-                    controller.selectedDate(dates[index]); // Update tanggal
+                    controller.onDateSelected(dates[index]); // Update tanggal
                     _scrollToSelectedDate(); // Scroll ke tanggal yang dipilih
                   },
                   child: Container(
