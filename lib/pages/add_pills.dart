@@ -11,9 +11,15 @@ class AddPillsPage extends StatelessWidget {
   final TextEditingController jenisObatController = TextEditingController();
   final TextEditingController jumlahPillController = TextEditingController();
   final TextEditingController dosisPerHariController = TextEditingController();
+  bool isAlarm = false;
+  List<String> waktuAlarm = [];
 
   @override
   Widget build(BuildContext context) {
+    jenisObatController.text = obatController.jenisObat.value;
+    jumlahPillController.text = obatController.jumlahPill.value;
+    dosisPerHariController.text = obatController.dosisPerHari.value;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -106,6 +112,19 @@ class AddPillsPage extends StatelessWidget {
                         style: TypographyCollection.sh1,
                       ),
                     ),
+                  if (isAlarm && waktuAlarm.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: waktuAlarm.map((time) {
+                          return Text(
+                            "Alarm: $time",
+                            style: TypographyCollection.sh1,
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(15),
@@ -115,8 +134,25 @@ class AddPillsPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: GestureDetector(
-                      onTap: () {
-                        Get.to(() => AddSchedulePage());
+                      onTap: () async {
+                        obatController
+                            .updateJenisObat(jenisObatController.text);
+                        obatController
+                            .updateJumlahPill(jumlahPillController.text);
+                        obatController
+                            .updateDosisPerHari(dosisPerHariController.text);
+
+                        final result = await Get.to(() => AddSchedulePage(
+                              initialStartDate: obatController.startDate.value,
+                              initialEndDate: obatController.endDate.value,
+                            ));
+
+                        if (result != null) {
+                          obatController.updateStartDate(result['startDate']);
+                          obatController.updateEndDate(result['endDate']);
+                          isAlarm = result['useAlarm'];
+                          waktuAlarm = result['waktuAlarm'];
+                        }
                       },
                       child: Row(
                         children: [
@@ -155,23 +191,22 @@ class AddPillsPage extends StatelessWidget {
                     return;
                   }
 
-                  // Simpan data ke controller
                   obatController.saveNewObat(
                     jenisObat,
                     jumlahPill,
                     dosisPerHari,
-                    ["08:00", "20:00"], // Contoh waktu konsumsi
+                    waktuAlarm,
+                    isAlarm,
                   );
 
-                  // Logging untuk memastikan data tersimpan
-                  print("Obat Baru: $jenisObat");
-                  print("Tanggal Mulai: ${obatController.startDate.value}");
-                  print("Tanggal Akhir: ${obatController.endDate.value}");
-                  print("Total Obat: ${obatController.allObat.length}");
+                  // Clear data di controller dan TextEditingController
+                  obatController.clearData();
+                  jenisObatController.clear();
+                  jumlahPillController.clear();
+                  dosisPerHariController.clear();
 
-                  // Navigasi langsung ke HomePage
-                  Get.offAllNamed(
-                      '/home'); // Pastikan rute untuk HomePage adalah '/home'
+                  // Navigasi ke halaman utama
+                  Get.offAllNamed('/home');
                 },
               ),
             ),

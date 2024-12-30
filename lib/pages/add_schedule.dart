@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
-import 'package:my_theraphy/styles/color_collection.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/button_selesai.dart';
 import 'package:my_theraphy/widgets/calendar.dart';
+import 'package:my_theraphy/helper/alarmHelper.dart'; // Import AlarmHelper
+import 'package:my_theraphy/helper/requestAlarm.dart';
 
 class AddSchedulePage extends StatefulWidget {
+  final DateTime? initialStartDate;
+  final DateTime? initialEndDate;
+
+  AddSchedulePage({this.initialStartDate, this.initialEndDate});
+
   @override
   State<AddSchedulePage> createState() => _AddSchedulePageState();
 }
@@ -16,6 +22,15 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
 
   DateTime? tanggalMulai;
   DateTime? tanggalBerakhir;
+  List<TimeOfDay> waktuAlarms = [];
+  bool useAlarm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    tanggalMulai = widget.initialStartDate;
+    tanggalBerakhir = widget.initialEndDate;
+  }
 
   void _showCalendarDialog(String tipeTanggal) async {
     DateTime? selectedDate = await Navigator.of(context).push<DateTime>(
@@ -47,15 +62,57 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
     }
   }
 
+  Future<void> _addAlarmTime() async {
+    if (!useAlarm) return;
+
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        waktuAlarms.add(pickedTime);
+      });
+    }
+  }
+
+  void _scheduleAlarms() async {
+    if (!useAlarm) return;
+
+    // Cek dan minta izin
+    bool isPermissionGranted = await requestAlarmPermission();
+    if (!isPermissionGranted) {
+      Get.snackbar(
+        "Izin Diperlukan",
+        "Aplikasi memerlukan izin untuk mengatur alarm.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (tanggalMulai == null || tanggalBerakhir == null) return;
+
+    DateTime currentDate = tanggalMulai!;
+    while (!currentDate.isAfter(tanggalBerakhir!)) {
+      for (var time in waktuAlarms) {
+        print(
+            "Menjadwalkan alarm pada ${currentDate.toIso8601String()} pukul ${time.hour}:${time.minute}");
+        AlarmHelper.setSystemAlarm(
+          hour: time.hour,
+          minute: time.minute,
+          message: "Waktunya minum obat!",
+        );
+      }
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(
-          'Tanggal & Waktu',
-          style: TypographyCollection.h1,
-        ),
+        title: Text('Tanggal & Waktu', style: TypographyCollection.h1),
         automaticallyImplyLeading: true,
       ),
       body: Padding(
@@ -89,30 +146,57 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
               trailing: const Icon(Icons.keyboard_arrow_right),
               onTap: () => _showCalendarDialog('berakhir'),
             ),
-            // // Alarm
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     Text('Alarm', style: TypographyCollection.h1),
-            //     Switch(
-            //       value: true, // Default alarm aktif
-            //       onChanged: (bool value) {
-            //         // Logika switch alarm
-            //       },
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-            // // Ringtone
-            // ListTile(
-            //   title: const Text('Ringtone'),
-            //   trailing: const Icon(Icons.keyboard_arrow_right),
-            //   onTap: () {
-            //     // Logika pemilihan ringtone
-            //   },
-            // ),
+            // Toggle Alarm
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Gunakan Alarm', style: TypographyCollection.h1),
+                Switch(
+                  value: useAlarm,
+                  onChanged: (value) {
+                    setState(() {
+                      useAlarm = value;
+                      if (!useAlarm) {
+                        waktuAlarms.clear();
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Waktu Alarm
+            if (useAlarm)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Waktu Alarm', style: TypographyCollection.h1),
+                  const SizedBox(height: 10),
+                  ...waktuAlarms.map((time) => ListTile(
+                        title: Text(
+                          "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}",
+                          style: TypographyCollection.sh1,
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            setState(() {
+                              waktuAlarms.remove(time);
+                            });
+                          },
+                        ),
+                      )),
+                  TextButton(
+                    onPressed: _addAlarmTime,
+                    child: Text("Tambah Waktu Alarm"),
+                  ),
+                ],
+              ),
             const Spacer(),
+
             // Tombol Selesai
             Center(
               child: ButtonSelesai(
@@ -120,25 +204,40 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                   if (tanggalMulai == null || tanggalBerakhir == null) {
                     Get.snackbar(
                       "Error",
-                      "Harap pilih tanggal mulai dan berakhir",
+                      "Harap pilih tanggal mulai dan berakhir.",
                       snackPosition: SnackPosition.BOTTOM,
                     );
                     return;
                   }
 
-                  // Simpan tanggal ke controller
-                  obatController.updateStartDate(tanggalMulai);
-                  obatController.updateEndDate(tanggalBerakhir);
+                  if (tanggalMulai!.isAfter(tanggalBerakhir!)) {
+                    Get.snackbar(
+                      "Error",
+                      "Tanggal mulai tidak boleh setelah tanggal berakhir.",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                    return;
+                  }
 
-                  // Tambahkan logging untuk memastikan
-                  print("Tanggal Mulai: ${obatController.startDate.value}");
-                  print("Tanggal Akhir: ${obatController.endDate.value}");
+                  // Jadwalkan alarm
+                  if (useAlarm) {
+                    _scheduleAlarms();
+                  }
 
-                  Get.back(); // Kembali ke AddPillsPage
+                  // Kirim data kembali ke AddPillsPage
+                  Get.back(result: {
+                    'startDate': tanggalMulai,
+                    'endDate': tanggalBerakhir,
+                    'useAlarm': useAlarm,
+                    'waktuAlarm': waktuAlarms
+                        .map((time) =>
+                            "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}")
+                        .toList(),
+                  });
                 },
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
           ],
         ),
       ),

@@ -1,49 +1,63 @@
 class Obat {
-  final String nama; // Nama obat
-  final DateTime tanggalMulai; // Tanggal mulai konsumsi
-  final DateTime tanggalAkhir; // Tanggal akhir konsumsi
-  final int jumlah; // Jumlah obat
-  final int dosis; // Berapa kali sehari
-  final List<String> waktu; // List waktu konsumsi (misalnya ["10:00", "20:00"])
-  final bool isAlarm; // Apakah alarm aktif
-  final String ringtone; // Ringtone untuk alarm
+  int? id;
+  final String nama;
+  final DateTime tanggalMulai;
+  final DateTime tanggalAkhir;
+  final int jumlah;
+  final int dosis;
+  final List<String> waktu;
+  final bool isAlarm;
+  final List<String>? waktuAlarm; // Ubah menjadi nullable
+  final List<DateTime>
+      tanggalKonsumsi; // Tambahan: Tanggal konsumsi yang tersisa
 
   Obat({
+    this.id,
     required this.nama,
     required this.tanggalMulai,
     required this.tanggalAkhir,
     required this.jumlah,
     required this.dosis,
     required this.waktu,
-    this.isAlarm = false, // Default alarm tidak aktif
-    this.ringtone = "Default", // Default ringtone
+    this.isAlarm = false,
+    this.waktuAlarm, // Tidak perlu nilai default
+    required this.tanggalKonsumsi,
   });
 
-  // Konversi ke JSON (untuk API atau penyimpanan lokal)
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nama': nama,
       'tanggalMulai': tanggalMulai.toIso8601String(),
       'tanggalAkhir': tanggalAkhir.toIso8601String(),
       'jumlah': jumlah,
       'dosis': dosis,
-      'waktu': waktu,
-      'isAlarm': isAlarm,
-      'ringtone': ringtone,
+      'waktu': waktu.join(','), // Simpan waktu sebagai string
+      'isAlarm': isAlarm ? 1 : 0,
+      'waktuAlarm': waktuAlarm?.join(','), // Jika null, hasilnya tetap null
+      'tanggalKonsumsi': tanggalKonsumsi
+          .map((e) => e.toIso8601String())
+          .join(','), // Simpan sebagai string
     };
   }
 
-  // Buat instance dari JSON
   factory Obat.fromJson(Map<String, dynamic> json) {
     return Obat(
+      id: json['id'],
       nama: json['nama'],
       tanggalMulai: DateTime.parse(json['tanggalMulai']),
       tanggalAkhir: DateTime.parse(json['tanggalAkhir']),
       jumlah: json['jumlah'],
       dosis: json['dosis'],
-      waktu: List<String>.from(json['waktu']),
-      isAlarm: json['isAlarm'],
-      ringtone: json['ringtone'],
+      waktu: (json['waktu'] as String).split(','),
+      isAlarm: json['isAlarm'] == 1,
+      waktuAlarm: json['waktuAlarm'] != null
+          ? (json['waktuAlarm'] as String).split(',')
+          : null, // Cek null sebelum parsing
+      tanggalKonsumsi: (json['tanggalKonsumsi'] as String)
+          .split(',')
+          .map((e) => DateTime.parse(e))
+          .toList(),
     );
   }
 }

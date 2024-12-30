@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_theraphy/controllers/date_controller.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
 import 'package:my_theraphy/styles/color_collection.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
@@ -48,20 +49,15 @@ class HomePage extends StatelessWidget {
           DateSelector(),
           const SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('Obat Hari Ini', style: TypographyCollection.h1),
           ),
           // List Obat
           Expanded(
             child: Obx(() {
               final obatHariIni = obatController.obatHariIni;
-
-              // Tambahkan logging untuk debugging
-              print("Obat Hari Ini: ${obatHariIni.length}");
-              for (var obat in obatHariIni) {
-                print(
-                    "Obat: ${obat.nama}, Tanggal: ${obat.tanggalMulai} - ${obat.tanggalAkhir}");
-              }
+              final selectedDate =
+                  Get.find<DateSelectorController>().selectedDate.value;
 
               if (obatHariIni.isEmpty) {
                 return Center(
@@ -71,12 +67,15 @@ class HomePage extends StatelessWidget {
                   ),
                 );
               }
+
               return ListView.builder(
                 itemCount: obatHariIni.length,
                 itemBuilder: (context, index) {
                   final obat = obatHariIni[index];
+
                   return Dismissible(
-                    key: Key(obat.nama),
+                    key: Key(
+                        '${obat.nama}-${selectedDate.toIso8601String()}'), // Gunakan kombinasi nama dan tanggal untuk key unik
                     background: Container(
                       color: ColorCollections.primaryDarkBlue,
                       alignment: Alignment.centerRight,
@@ -86,11 +85,28 @@ class HomePage extends StatelessWidget {
                     ),
                     direction: DismissDirection.endToStart,
                     onDismissed: (direction) {
-                      obatController.deleteObat(obat);
+                      final selectedDate =
+                          Get.find<DateSelectorController>().selectedDate.value;
+
+                      // Coba hapus berdasarkan tanggal
+                      obatController.deleteObatHariIni(obat, selectedDate);
+
+                      // Hapus obat sepenuhnya jika `tanggalKonsumsi` kosong
+                      if (obat.tanggalKonsumsi.isEmpty) {
+                        obatController.deleteObat(obat);
+                      } else {
+                        obatController.allObat.refresh();
+                      }
+
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("${obat.nama} dihapus")),
+                        SnackBar(
+                          content: Text(
+                            "${obat.nama} selesai diminum.",
+                          ),
+                        ),
                       );
                     },
+
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.grey[200],
@@ -110,6 +126,7 @@ class HomePage extends StatelessWidget {
               );
             }),
           ),
+
           CustomBottomNavigationBar(),
         ],
       ),

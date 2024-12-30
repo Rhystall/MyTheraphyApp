@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/date_controller.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
+import 'package:my_theraphy/helper/notification_helper.dart'; // Import NotificationHelper
+import 'package:my_theraphy/helper/requestAlarm.dart';
 import 'package:my_theraphy/pages/add_pills.dart';
 import 'package:my_theraphy/pages/add_schedule.dart';
 import 'package:my_theraphy/pages/home_page.dart';
+import 'package:timezone/data/latest.dart' as tz; // Import timezone data
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones(); // Inisialisasi timezone
+  await NotificationHelper.initialize(); // Inisialisasi notifikasi
   Get.put(DateSelectorController());
   Get.put(ObatController());
   runApp(const MyApp());

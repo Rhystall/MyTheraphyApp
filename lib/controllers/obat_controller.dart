@@ -1,66 +1,117 @@
 import 'package:get/get.dart';
-import 'package:my_theraphy/models/obat.dart';
 import 'package:my_theraphy/controllers/date_controller.dart';
+import '../models/obat.dart';
+import '../helper/DBHelper.dart';
 
 class ObatController extends GetxController {
+  final RxList<Obat> allObat = <Obat>[].obs;
+
   final Rx<DateTime?> startDate = Rx<DateTime?>(null); // Tanggal Mulai
   final Rx<DateTime?> endDate = Rx<DateTime?>(null); // Tanggal Akhir
+  RxString jenisObat = ''.obs;
+  RxString jumlahPill = ''.obs;
+  RxString dosisPerHari = ''.obs;
 
-  // Data dummy untuk obat
-  final RxList<Obat> allObat = <Obat>[
-    Obat(
-      nama: "Vitamin C",
-      tanggalMulai: DateTime(2024, 12, 20),
-      tanggalAkhir: DateTime(2024, 12, 25),
-      jumlah: 2,
-      dosis: 1,
-      waktu: ["10:00 pagi"],
-      isAlarm: true,
-      ringtone: "Default",
-    ),
-    Obat(
-      nama: "Paracetamol",
-      tanggalMulai: DateTime(2024, 12, 19),
-      tanggalAkhir: DateTime(2024, 12, 22),
-      jumlah: 1,
-      dosis: 2,
-      waktu: ["08:00 pagi", "08:00 malam"],
-      isAlarm: false,
-    ),
-  ].obs;
+  // Fungsi untuk membersihkan data
+  void clearData() {
+    jenisObat.value = '';
+    jumlahPill.value = '';
+    dosisPerHari.value = '';
+    startDate.value = null;
+    endDate.value = null;
+  }
 
-  // Filter obat berdasarkan tanggal yang dipilih dari DateSelectorController
+  void updateJenisObat(String value) {
+    jenisObat.value = value;
+  }
+
+  void updateJumlahPill(String value) {
+    jumlahPill.value = value;
+  }
+
+  void updateDosisPerHari(String value) {
+    dosisPerHari.value = value;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchObat(); // Ambil data dari database saat inisialisasi
+  }
+
+  Future<void> fetchObat() async {
+    allObat.value = await DBHelper.getObatList();
+  }
+
   List<Obat> get obatHariIni {
     final selectedDate = Get.find<DateSelectorController>().selectedDate.value;
+
+    final normalizedSelectedDate = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+
     return allObat.where((obat) {
-      return selectedDate
-              .isAfter(obat.tanggalMulai.subtract(const Duration(days: 1))) &&
-          selectedDate.isBefore(obat.tanggalAkhir.add(const Duration(days: 1)));
+      return obat.tanggalKonsumsi.any((tanggalKonsumsi) {
+        final normalizedTanggalKonsumsi = DateTime(
+          tanggalKonsumsi.year,
+          tanggalKonsumsi.month,
+          tanggalKonsumsi.day,
+        );
+        return normalizedTanggalKonsumsi == normalizedSelectedDate;
+      });
     }).toList();
   }
 
-  // Fungsi untuk menambah atau menghapus obat
-  void addObat(Obat obat) {
-    allObat.add(obat);
+  Future<void> addObat(Obat obat) async {
+    await DBHelper.insertObat(obat);
+    fetchObat(); // Refresh data setelah insert
   }
 
-  void deleteObat(Obat obat) {
-    allObat.remove(obat);
+  void deleteObatHariIni(Obat obat, DateTime selectedDate) {
+    final normalizedSelectedDate = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+
+    obat.tanggalKonsumsi.removeWhere((date) {
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+      return normalizedDate == normalizedSelectedDate;
+    });
+
+    if (obat.tanggalKonsumsi.isEmpty) {
+      allObat.remove(obat);
+    }
+
+    allObat.refresh();
   }
 
-  // Perbarui tanggal mulai
+  Future<void> deleteObat(Obat obat) async {
+    if (obat.id != null) {
+      await DBHelper.deleteObat(obat.id!);
+      allObat.remove(obat);
+      allObat.refresh();
+    }
+  }
+
   void updateStartDate(DateTime? date) {
     startDate.value = date;
   }
 
-  // Perbarui tanggal akhir
   void updateEndDate(DateTime? date) {
     endDate.value = date;
   }
 
-  // Buat obat baru dengan tanggal mulai dan akhir
-  void saveNewObat(String nama, int jumlah, int dosis, List<String> waktu,
-      {bool isAlarm = false, String ringtone = "Default"}) {
+  void saveNewObat(
+    String nama,
+    int jumlah,
+    int dosis,
+    List<String> waktu,
+    bool isAlarm, [
+    List<String>? waktuAlarm, // Bersifat opsional
+  ]) async {
     if (startDate.value == null || endDate.value == null) {
       Get.snackbar(
         "Error",
@@ -68,6 +119,14 @@ class ObatController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
+    }
+
+    // Generate tanggal konsumsi
+    List<DateTime> tanggalKonsumsi = [];
+    DateTime currentDate = startDate.value!;
+    while (currentDate.isBefore(endDate.value!.add(const Duration(days: 1)))) {
+      tanggalKonsumsi.add(currentDate);
+      currentDate = currentDate.add(const Duration(days: 1));
     }
 
     final newObat = Obat(
@@ -78,10 +137,11 @@ class ObatController extends GetxController {
       dosis: dosis,
       waktu: waktu,
       isAlarm: isAlarm,
-      ringtone: ringtone,
+      waktuAlarm: isAlarm ? waktuAlarm : null, // Nilai null jika alarm mati
+      tanggalKonsumsi: tanggalKonsumsi,
     );
 
-    addObat(newObat);
+    await addObat(newObat);
 
     // Reset tanggal setelah menyimpan obat
     startDate.value = null;
