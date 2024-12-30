@@ -4,7 +4,8 @@ import 'package:my_theraphy/controllers/obat_controller.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/button_selesai.dart';
 import 'package:my_theraphy/widgets/calendar.dart';
-import 'package:my_theraphy/helper/alarmHelper.dart'; // Import AlarmHelper
+import 'package:my_theraphy/helper/alarmHelper.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AddSchedulePage extends StatefulWidget {
   final DateTime? initialStartDate;
@@ -76,8 +77,35 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
     }
   }
 
+  Future<void> _requestAlarmPermission() async {
+    if (!await Permission.scheduleExactAlarm.isGranted) {
+      Get.snackbar(
+        "Izin Diperlukan",
+        "Aplikasi memerlukan izin untuk menjadwalkan alarm presisi.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      if (await Permission.scheduleExactAlarm.request().isDenied) {
+        Get.snackbar(
+          "Izin Ditolak",
+          "Silakan aktifkan izin alarm presisi di pengaturan.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        openAppSettings();
+      }
+    }
+  }
+
   void _scheduleAlarms() async {
     if (!useAlarm) return;
+
+    // Periksa izin sebelum menjadwalkan alarm
+    if (!await Permission.scheduleExactAlarm.isGranted) {
+      await _requestAlarmPermission();
+      if (!await Permission.scheduleExactAlarm.isGranted) {
+        return;
+      }
+    }
 
     if (tanggalMulai == null || tanggalBerakhir == null) {
       Get.snackbar(
