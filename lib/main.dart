@@ -9,6 +9,8 @@ import 'package:my_theraphy/helper/notification_helper.dart'; // Import Notifica
 import 'package:my_theraphy/pages/add_pills.dart';
 import 'package:my_theraphy/pages/add_schedule.dart';
 import 'package:my_theraphy/pages/home_page.dart';
+import 'package:my_theraphy/pages/welcome_page.dart'; // Import WelcomePage
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz; // Import timezone data
 
 void main() async {
@@ -16,14 +18,27 @@ void main() async {
   tz.initializeTimeZones(); // Inisialisasi timezone
   await NotificationHelper.initialize(); // Inisialisasi notifikasi
   await AndroidAlarmManager.initialize(); // Inisialisasi alarm manager
-  Get.put(ProfileController()); // Inisialisasi ProfileController
+
+  // Inisialisasi kontroler menggunakan Get
+  Get.put(ProfileController());
   Get.put(DateSelectorController());
   Get.put(ObatController());
-  runApp(const MyApp());
+
+  // Tentukan apakah ini adalah pertama kali aplikasi dijalankan
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstRun = prefs.getBool('isFirstRun') ?? true;
+
+  if (isFirstRun) {
+    await prefs.setBool('isFirstRun', false);
+  }
+
+  runApp(MyApp(isFirstRun: isFirstRun));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isFirstRun;
+
+  const MyApp({super.key, required this.isFirstRun});
 
   @override
   Widget build(BuildContext context) {
@@ -34,17 +49,19 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/home',
+      initialRoute: isFirstRun
+          ? '/welcome'
+          : '/home', // Tampilkan WelcomePage jika pertama kali
       getPages: [
+        GetPage(name: '/welcome', page: () => WelcomePage()),
         GetPage(name: '/home', page: () => HomePage()),
         GetPage(
           name: '/add_pills',
           page: () {
-            // Ambil argumen yang dikirim saat navigasi
             final args = Get.arguments as Map<String, dynamic>;
             return AddPillsPage(
-              mode: args['mode'], // 'add' atau 'update'
-              existingObat: args['existingObat'], // Obat atau null
+              mode: args['mode'],
+              existingObat: args['existingObat'],
             );
           },
         ),
