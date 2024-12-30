@@ -5,8 +5,15 @@ import 'package:my_theraphy/pages/add_schedule.dart';
 import 'package:my_theraphy/styles/color_collection.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/button_selesai.dart';
+import '../models/obat.dart';
 
 class AddPillsPage extends StatelessWidget {
+  final String mode; // 'add' atau 'update'
+  final Obat?
+      existingObat; // Data obat yang akan di-update (null jika mode 'add')
+
+  AddPillsPage({required this.mode, this.existingObat});
+
   final ObatController obatController = Get.find<ObatController>();
   final TextEditingController jenisObatController = TextEditingController();
   final TextEditingController jumlahPillController = TextEditingController();
@@ -16,15 +23,24 @@ class AddPillsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    jenisObatController.text = obatController.jenisObat.value;
-    jumlahPillController.text = obatController.jumlahPill.value;
-    dosisPerHariController.text = obatController.dosisPerHari.value;
+    // Inisialisasi data jika mode adalah 'update'
+    if (mode == 'update' && existingObat != null) {
+      print("Sebelum update: ${existingObat!.toJson()}");
+
+      jenisObatController.text = existingObat!.nama;
+      jumlahPillController.text = existingObat!.jumlah.toString();
+      dosisPerHariController.text = existingObat!.dosis.toString();
+      isAlarm = existingObat!.isAlarm;
+      waktuAlarm = existingObat!.waktuAlarm ?? [];
+      obatController.updateStartDate(existingObat!.tanggalMulai);
+      obatController.updateEndDate(existingObat!.tanggalAkhir);
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
-          'Tambah Obat',
+          mode == 'add' ? 'Tambah Obat' : 'Update Obat',
           style: TypographyCollection.h1,
         ),
         automaticallyImplyLeading: true,
@@ -148,10 +164,13 @@ class AddPillsPage extends StatelessWidget {
                             ));
 
                         if (result != null) {
+                          print("Data diterima: $result"); // Tambahkan log
                           obatController.updateStartDate(result['startDate']);
                           obatController.updateEndDate(result['endDate']);
-                          isAlarm = result['useAlarm'];
-                          waktuAlarm = result['waktuAlarm'];
+                          isAlarm = result['useAlarm'] ?? false;
+                          waktuAlarm = result['waktuAlarm'] ?? [];
+                        } else {
+                          print("Tidak ada data diterima dari AddSchedulePage");
                         }
                       },
                       child: Row(
@@ -159,7 +178,10 @@ class AddPillsPage extends StatelessWidget {
                           Icon(Icons.add,
                               color: ColorCollections.accentDarkBlack),
                           const SizedBox(width: 10),
-                          Text('Tambah', style: TypographyCollection.italic),
+                          Text(
+                            mode == 'add' ? 'Tambah' : 'Ubah',
+                            style: TypographyCollection.italic,
+                          ),
                         ],
                       ),
                     ),
@@ -191,21 +213,37 @@ class AddPillsPage extends StatelessWidget {
                     return;
                   }
 
-                  obatController.saveNewObat(
-                    jenisObat,
-                    jumlahPill,
-                    dosisPerHari,
-                    waktuAlarm,
-                    isAlarm,
-                  );
+                  if (mode == 'add') {
+                    obatController.saveNewObat(
+                      jenisObat,
+                      jumlahPill,
+                      dosisPerHari,
+                      waktuAlarm,
+                      isAlarm,
+                    );
+                  } else if (mode == 'update' && existingObat != null) {
+                    existingObat!.nama = jenisObat;
+                    existingObat!.jumlah = jumlahPill;
+                    existingObat!.dosis = dosisPerHari;
+                    existingObat!.tanggalMulai =
+                        obatController.startDate.value!;
+                    existingObat!.tanggalAkhir = obatController.endDate.value!;
+                    existingObat!.isAlarm = isAlarm;
+                    existingObat!.waktuAlarm = waktuAlarm;
 
-                  // Clear data di controller dan TextEditingController
+                    obatController.updateObat(existingObat!);
+                  }
+
+                  // Bersihkan data
                   obatController.clearData();
                   jenisObatController.clear();
                   jumlahPillController.clear();
                   dosisPerHariController.clear();
 
-                  // Navigasi ke halaman utama
+                  // Panggil fetchObat sebelum kembali
+                  obatController.fetchObat();
+
+                  // Kembali ke halaman HomePage
                   Get.offAllNamed('/home');
                 },
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
+import 'package:my_theraphy/pages/add_pills.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/bottom_navigation_bar.dart';
 
@@ -44,41 +45,52 @@ class MyPillsPage extends StatelessWidget {
                       "Tanggal: ${obat.tanggalMulai.day}-${obat.tanggalMulai.month}-${obat.tanggalMulai.year} "
                       "s/d ${obat.tanggalAkhir.day}-${obat.tanggalAkhir.month}-${obat.tanggalAkhir.year}",
                     ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Hapus Obat"),
-                            content: Text(
-                              "Apakah Anda yakin ingin menghapus obat ${obat.nama} dari seluruh tanggal?",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context); // Tutup dialog
-                                },
-                                child: Text("Batal"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            // Navigasi ke AddPillsPage dengan mode 'update' dan data existingObat
+                            Get.to(() => AddPillsPage(
+                                  mode: 'update',
+                                  existingObat:
+                                      obat, // Data obat yang akan di-update
+                                ));
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            Get.dialog(
+                              AlertDialog(
+                                title: Text("Hapus Obat"),
+                                content: Text(
+                                  "Apakah Anda yakin ingin menghapus obat ${obat.nama} dari seluruh tanggal?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(), // Tutup dialog
+                                    child: Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      obatController.deleteObat(obat);
+                                      Get.back(); // Tutup dialog
+                                      Get.snackbar(
+                                        "Sukses",
+                                        "Obat ${obat.nama} telah dihapus",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
+                                    },
+                                    child: Text("Hapus"),
+                                  ),
+                                ],
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  // Hapus obat di seluruh tanggal
-                                  obatController.deleteObat(obat);
-                                  Navigator.pop(context); // Tutup dialog
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          "Obat ${obat.nama} telah dihapus"),
-                                    ),
-                                  );
-                                },
-                                child: Text("Hapus"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   );
                 },

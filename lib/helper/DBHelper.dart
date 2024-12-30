@@ -28,6 +28,21 @@ class DBHelper {
     );
   }
 
+  static Future<int> updateObat(Obat obat) async {
+    final db = await getDatabase();
+    final data = obat.toJson();
+
+    // Debugging log
+    print("Data yang akan diupdate ke database: $data");
+
+    return await db.update(
+      'obat',
+      data,
+      where: 'id = ?',
+      whereArgs: [obat.id],
+    );
+  }
+
   /// Membuat tabel `obat`
   static Future<void> _createTable(Database db) async {
     await db.execute('''

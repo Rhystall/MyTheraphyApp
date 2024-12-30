@@ -255,12 +255,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     return;
                   }
 
-                  // Jadwalkan alarm
-                  if (useAlarm) {
-                    _scheduleAlarms();
-                  }
-
-                  // Kirim data kembali ke AddPillsPage
+                  print("Mengirim data: $tanggalMulai hingga $tanggalBerakhir");
                   Get.back(result: {
                     'startDate': tanggalMulai,
                     'endDate': tanggalBerakhir,

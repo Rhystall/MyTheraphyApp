@@ -27,7 +27,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         Get.off(() => HomePage()); // Navigasi ke HomePage
         break;
       case 1:
-        Get.to(() => AddPillsPage()); // Navigasi ke Add Pills Page
+        Get.to(() => AddPillsPage(mode: 'add')); // Navigasi ke Add Pills Page
         break;
       case 2:
         Get.to(() => MyPillsPage()); // Navigasi ke My Pills Page

@@ -1,15 +1,14 @@
 class Obat {
   int? id;
-  final String nama;
-  final DateTime tanggalMulai;
-  final DateTime tanggalAkhir;
-  final int jumlah;
-  final int dosis;
-  final List<String> waktu;
-  final bool isAlarm;
-  final List<String>? waktuAlarm; // Ubah menjadi nullable
-  final List<DateTime>
-      tanggalKonsumsi; // Tambahan: Tanggal konsumsi yang tersisa
+  String nama;
+  DateTime tanggalMulai;
+  DateTime tanggalAkhir;
+  int jumlah;
+  int dosis;
+  List<String> waktu;
+  bool isAlarm;
+  List<String>? waktuAlarm; // Ubah menjadi nullable
+  List<DateTime> tanggalKonsumsi; // Tambahan: Tanggal konsumsi yang tersisa
 
   Obat({
     this.id,

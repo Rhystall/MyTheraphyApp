@@ -41,6 +41,8 @@ class ObatController extends GetxController {
 
   Future<void> fetchObat() async {
     allObat.value = await DBHelper.getObatList();
+    print("Data obat setelah fetch: ${allObat.map((e) => e.toJson())}");
+    validateUpdatedData(); // Validasi data setelah fetch
   }
 
   List<Obat> get obatHariIni {
@@ -97,11 +99,51 @@ class ObatController extends GetxController {
   }
 
   void updateStartDate(DateTime? date) {
+    print("Start date updated to: $date");
     startDate.value = date;
   }
 
   void updateEndDate(DateTime? date) {
+    print("End date updated to: $date");
     endDate.value = date;
+  }
+
+  Future<void> updateObat(Obat obat) async {
+    if (obat.id != null) {
+      // Perbarui tanggal konsumsi berdasarkan tanggal mulai dan akhir
+      List<DateTime> tanggalKonsumsiBaru = [];
+      DateTime currentDate = obat.tanggalMulai;
+      while (currentDate
+          .isBefore(obat.tanggalAkhir.add(const Duration(days: 1)))) {
+        tanggalKonsumsiBaru.add(currentDate);
+        currentDate = currentDate.add(const Duration(days: 1));
+      }
+      obat.tanggalKonsumsi = tanggalKonsumsiBaru;
+
+      // Debugging log
+      print("Mengupdate obat dengan ID: ${obat.id}");
+      print(
+          "Tanggal konsumsi baru: ${tanggalKonsumsiBaru.map((e) => e.toIso8601String()).toList()}");
+
+      // Simpan ke database
+      final result = await DBHelper.updateObat(obat);
+      if (result > 0) {
+        print("Obat berhasil diperbarui di database.");
+      } else {
+        print("Gagal memperbarui obat di database.");
+      }
+
+      // Refresh data setelah pembaruan
+      fetchObat();
+    }
+  }
+
+  void validateUpdatedData() {
+    allObat.forEach((obat) {
+      print("Obat ID: ${obat.id}");
+      print(
+          "Tanggal konsumsi: ${obat.tanggalKonsumsi.map((e) => e.toIso8601String()).toList()}");
+    });
   }
 
   void saveNewObat(

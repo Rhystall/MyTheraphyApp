@@ -56,8 +56,6 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: Obx(() {
               final obatHariIni = obatController.obatHariIni;
-              final selectedDate =
-                  Get.find<DateSelectorController>().selectedDate.value;
 
               if (obatHariIni.isEmpty) {
                 return Center(
@@ -75,7 +73,7 @@ class HomePage extends StatelessWidget {
 
                   return Dismissible(
                     key: Key(
-                        '${obat.nama}-${selectedDate.toIso8601String()}'), // Gunakan kombinasi nama dan tanggal untuk key unik
+                        '${obat.nama}-${obat.tanggalMulai.toIso8601String()}'),
                     background: Container(
                       color: ColorCollections.primaryDarkBlue,
                       alignment: Alignment.centerRight,
@@ -88,25 +86,20 @@ class HomePage extends StatelessWidget {
                       final selectedDate =
                           Get.find<DateSelectorController>().selectedDate.value;
 
-                      // Coba hapus berdasarkan tanggal
                       obatController.deleteObatHariIni(obat, selectedDate);
 
-                      // Hapus obat sepenuhnya jika `tanggalKonsumsi` kosong
                       if (obat.tanggalKonsumsi.isEmpty) {
                         obatController.deleteObat(obat);
                       } else {
-                        obatController.allObat.refresh();
+                        obatController.allObat.refresh(); // Tambahkan refresh
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                            "${obat.nama} selesai diminum.",
-                          ),
+                          content: Text("${obat.nama} selesai diminum."),
                         ),
                       );
                     },
-
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.grey[200],
@@ -115,8 +108,7 @@ class HomePage extends StatelessWidget {
                       ),
                       title: Text(obat.nama),
                       subtitle: Text(
-                        "${obat.jumlah} pill - ${obat.waktu.join(", ")}",
-                      ),
+                          "${obat.jumlah} pill - ${obat.waktu.join(", ")}"),
                       trailing: obat.isAlarm
                           ? const Icon(Icons.alarm_on, color: Colors.green)
                           : const Icon(Icons.alarm_off, color: Colors.grey),

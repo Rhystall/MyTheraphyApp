@@ -35,7 +35,17 @@ class MyApp extends StatelessWidget {
       initialRoute: '/home',
       getPages: [
         GetPage(name: '/home', page: () => HomePage()),
-        GetPage(name: '/add_pills', page: () => AddPillsPage()),
+        GetPage(
+          name: '/add_pills',
+          page: () {
+            // Ambil argumen yang dikirim saat navigasi
+            final args = Get.arguments as Map<String, dynamic>;
+            return AddPillsPage(
+              mode: args['mode'], // 'add' atau 'update'
+              existingObat: args['existingObat'], // Obat atau null
+            );
+          },
+        ),
         GetPage(name: '/add_schedule', page: () => AddSchedulePage()),
       ],
     );
