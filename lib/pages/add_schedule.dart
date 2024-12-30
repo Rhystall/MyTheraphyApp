@@ -5,7 +5,6 @@ import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/button_selesai.dart';
 import 'package:my_theraphy/widgets/calendar.dart';
 import 'package:my_theraphy/helper/alarmHelper.dart'; // Import AlarmHelper
-import 'package:my_theraphy/helper/requestAlarm.dart';
 
 class AddSchedulePage extends StatefulWidget {
   final DateTime? initialStartDate;
@@ -80,29 +79,38 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   void _scheduleAlarms() async {
     if (!useAlarm) return;
 
-    // Cek dan minta izin
-    bool isPermissionGranted = await requestAlarmPermission();
-    if (!isPermissionGranted) {
+    if (tanggalMulai == null || tanggalBerakhir == null) {
       Get.snackbar(
-        "Izin Diperlukan",
-        "Aplikasi memerlukan izin untuk mengatur alarm.",
+        "Error",
+        "Harap pilih tanggal mulai dan berakhir.",
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
-    if (tanggalMulai == null || tanggalBerakhir == null) return;
-
     DateTime currentDate = tanggalMulai!;
+    int alarmId = 0;
+
     while (!currentDate.isAfter(tanggalBerakhir!)) {
       for (var time in waktuAlarms) {
-        print(
-            "Menjadwalkan alarm pada ${currentDate.toIso8601String()} pukul ${time.hour}:${time.minute}");
-        AlarmHelper.setSystemAlarm(
-          hour: time.hour,
-          minute: time.minute,
+        DateTime alarmTime = DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day,
+          time.hour,
+          time.minute,
+        );
+
+        if (alarmTime.isBefore(DateTime.now())) continue;
+
+        await AlarmHelper.scheduleAlarm(
+          id: alarmId++,
+          dateTime: alarmTime,
           message: "Waktunya minum obat!",
         );
+
+        print(
+            "Alarm dijadwalkan pada ${alarmTime.toIso8601String()} dengan ID: $alarmId");
       }
       currentDate = currentDate.add(const Duration(days: 1));
     }

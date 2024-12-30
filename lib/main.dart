@@ -1,9 +1,10 @@
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/date_controller.dart';
 import 'package:my_theraphy/controllers/obat_controller.dart';
+import 'package:my_theraphy/helper/alarmHelper.dart';
 import 'package:my_theraphy/helper/notification_helper.dart'; // Import NotificationHelper
-import 'package:my_theraphy/helper/requestAlarm.dart';
 import 'package:my_theraphy/pages/add_pills.dart';
 import 'package:my_theraphy/pages/add_schedule.dart';
 import 'package:my_theraphy/pages/home_page.dart';
@@ -13,6 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones(); // Inisialisasi timezone
   await NotificationHelper.initialize(); // Inisialisasi notifikasi
+  await AndroidAlarmManager.initialize(); // Inisialisasi alarm manager
   Get.put(DateSelectorController());
   Get.put(ObatController());
   runApp(const MyApp());
