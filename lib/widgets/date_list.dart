@@ -5,6 +5,8 @@ import 'package:my_theraphy/styles/color_collection.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
 
 class DateSelector extends StatefulWidget {
+  const DateSelector({super.key});
+
   @override
   State<DateSelector> createState() => _DateSelectorState();
 }

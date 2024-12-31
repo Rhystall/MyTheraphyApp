@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('Obat Hari Ini', style: TypographyCollection.h1),
           ),
-          SizedBox(
+          const SizedBox(
             height: 16,
           ),
           // List Obat
@@ -118,10 +118,10 @@ class HomePage extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 30,
                             backgroundColor: Colors.white,
-                            child: const Icon(Icons.medical_services_outlined,
+                            child: Icon(Icons.medical_services_outlined,
                                 color: Colors.black),
                           ),
                           const SizedBox(width: 12),
@@ -134,14 +134,14 @@ class HomePage extends StatelessWidget {
                                   style: TypographyCollection.sh2.copyWith(
                                       color: Colors.grey, fontSize: 16),
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 Text(
                                   obat.nama,
                                   style: TypographyCollection.h1.copyWith(
                                     fontSize: 20,
                                   ),
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 Row(
                                   children: [
                                     Icon(
@@ -156,7 +156,7 @@ class HomePage extends StatelessWidget {
                                       obat.isAlarm &&
                                               obat.waktuAlarm != null &&
                                               obat.waktuAlarm!.isNotEmpty
-                                          ? "${obat.waktuAlarm!.join(", ")}"
+                                          ? obat.waktuAlarm!.join(", ")
                                           : "${obat.tanggalMulai.day}-${obat.tanggalMulai.month}-${obat.tanggalMulai.year}",
                                       style: TypographyCollection.sh1.copyWith(
                                         fontSize: 14,
@@ -176,7 +176,7 @@ class HomePage extends StatelessWidget {
             }),
           ),
 
-          CustomBottomNavigationBar(),
+          const CustomBottomNavigationBar(),
         ],
       ),
     );

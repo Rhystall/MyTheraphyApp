@@ -74,8 +74,8 @@ class AddPillsPage extends StatelessWidget {
             TextField(
               controller: jenisObatController,
               decoration: InputDecoration(
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.only(left: 10),
                   child: Icon(Icons.medication, color: Colors.black),
                 ),
                 border: OutlineInputBorder(
@@ -84,7 +84,7 @@ class AddPillsPage extends StatelessWidget {
                 filled: true,
                 fillColor: ColorCollections.accentGray,
               ),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -186,7 +186,7 @@ class AddPillsPage extends StatelessWidget {
                           ),
                           // Tombol Hapus Tanggal
                           IconButton(
-                            icon: Icon(Icons.clear, color: Colors.red),
+                            icon: const Icon(Icons.clear, color: Colors.red),
                             onPressed: () {
                               // Hapus data tanggal dan waktu
                               obatController.updateStartDate(null);
@@ -230,7 +230,7 @@ class AddPillsPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add,
+                          const Icon(Icons.add,
                               color: ColorCollections.accentDarkBlack),
                           const SizedBox(width: 10),
                           Text(
@@ -298,7 +298,7 @@ class AddPillsPage extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
           ],
         ),
       ),

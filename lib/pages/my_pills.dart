@@ -7,6 +7,8 @@ import 'package:my_theraphy/styles/typography_collection.dart';
 import 'package:my_theraphy/widgets/bottom_navigation_bar.dart';
 
 class MyPillsPage extends StatefulWidget {
+  const MyPillsPage({super.key});
+
   @override
   _MyPillsPageState createState() => _MyPillsPageState();
 }
@@ -35,7 +37,7 @@ class _MyPillsPageState extends State<MyPillsPage> {
               onChanged: (value) => searchQuery.value = value,
               decoration: InputDecoration(
                 hintText: "Cari nama obat...",
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
                 fillColor: ColorCollections.accentGray,
                 border: OutlineInputBorder(
@@ -145,7 +147,7 @@ class _MyPillsPageState extends State<MyPillsPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit, color: Colors.blue),
+                              icon: const Icon(Icons.edit, color: Colors.blue),
                               onPressed: () {
                                 Get.to(() => AddPillsPage(
                                       mode: 'update',
@@ -154,7 +156,7 @@ class _MyPillsPageState extends State<MyPillsPage> {
                               },
                             ),
                             IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
+                              icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () {
                                 Get.dialog(
                                   AlertDialog(
@@ -193,7 +195,7 @@ class _MyPillsPageState extends State<MyPillsPage> {
               );
             }),
           ),
-          CustomBottomNavigationBar(),
+          const CustomBottomNavigationBar(),
         ],
       ),
     );

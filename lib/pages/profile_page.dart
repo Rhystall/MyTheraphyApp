@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/profile_controller.dart';
 import 'package:my_theraphy/styles/color_collection.dart';
-import 'package:my_theraphy/styles/typography_collection.dart';
 
 class ProfilePage extends StatelessWidget {
   final ProfileController profileController = Get.find<ProfileController>();
   final TextEditingController nameController = TextEditingController();
+
+  ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {

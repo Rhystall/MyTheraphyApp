@@ -173,7 +173,8 @@ class _WelcomePageState extends State<WelcomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: () => pageController.jumpToPage(2),
+            onPressed:
+                currentIndex == 2 ? null : () => pageController.jumpToPage(2),
             child: const Text(
               "SKIP",
             ),
@@ -191,17 +192,20 @@ class _WelcomePageState extends State<WelcomePage> {
             }),
           ),
           TextButton(
-            onPressed: () {
-              if (currentIndex == 2) {
-                saveUserData();
-              } else {
-                pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            child: const Text("NEXT"),
+            onPressed: currentIndex == 2
+                ? null // Jika di halaman terakhir, tombol "NEXT" tidak aktif
+                : () {
+                    pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+            child: Text(
+              currentIndex == 2 ? "DONE" : "NEXT",
+              style: TextStyle(
+                color: currentIndex == 2 ? Colors.grey : Colors.black,
+              ),
+            ),
           ),
         ],
       ),

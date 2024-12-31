@@ -38,7 +38,7 @@ class ScheduleCalendar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
                       dateController.onDateSelected(
                         DateTime(
@@ -49,13 +49,13 @@ class ScheduleCalendar extends StatelessWidget {
                     },
                   ),
                   Text(
-                    "${DateFormat.yMMM().format(focusedDate)}",
+                    DateFormat.yMMM().format(focusedDate),
                     style: TypographyCollection.h1.copyWith(
                       color: Colors.white,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.arrow_forward, color: Colors.white),
+                    icon: const Icon(Icons.arrow_forward, color: Colors.white),
                     onPressed: () {
                       dateController.onDateSelected(
                         DateTime(
@@ -80,11 +80,11 @@ class ScheduleCalendar extends StatelessWidget {
                 onDateSelected(selectedDay);
               },
               calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
+                selectedDecoration: const BoxDecoration(
                   color: Colors.blue, // Warna tanggal yang dipilih
                   shape: BoxShape.circle,
                 ),
-                todayDecoration: BoxDecoration(
+                todayDecoration: const BoxDecoration(
                   color: Colors.orange, // Warna tanggal hari ini
                   shape: BoxShape.circle,
                 ),

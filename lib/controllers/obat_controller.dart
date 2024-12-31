@@ -148,11 +148,11 @@ class ObatController extends GetxController {
   }
 
   void validateUpdatedData() {
-    allObat.forEach((obat) {
+    for (var obat in allObat) {
       print("Obat ID: ${obat.id}");
       print(
           "Tanggal konsumsi: ${obat.tanggalKonsumsi.map((e) => e.toIso8601String()).toList()}");
-    });
+    }
   }
 
   void saveNewObat(

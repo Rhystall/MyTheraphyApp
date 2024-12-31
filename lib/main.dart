@@ -12,7 +12,6 @@ import 'package:my_theraphy/pages/welcome_page.dart'; // Import WelcomePage
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz; // Import timezone data
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import notifikasi lokal
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,7 +87,7 @@ class MyApp extends StatelessWidget {
           ? '/welcome'
           : '/home', // Tampilkan WelcomePage jika pertama kali
       getPages: [
-        GetPage(name: '/welcome', page: () => WelcomePage()),
+        GetPage(name: '/welcome', page: () => const WelcomePage()),
         GetPage(name: '/home', page: () => HomePage()),
         GetPage(
           name: '/add_pills',

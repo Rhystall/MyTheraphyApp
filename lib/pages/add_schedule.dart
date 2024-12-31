@@ -227,7 +227,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                       )),
                   TextButton(
                     onPressed: _addAlarmTime,
-                    child: Text("Tambah Waktu Alarm"),
+                    child: const Text("Tambah Waktu Alarm"),
                   ),
                 ],
               ),
