@@ -13,7 +13,10 @@ class MyPillsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('My Pills'),
+        title: Text(
+          'My Pills',
+          style: TypographyCollection.h1,
+        ),
       ),
       body: Column(
         children: [

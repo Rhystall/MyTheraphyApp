@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/profile_controller.dart';
 import 'package:my_theraphy/styles/color_collection.dart';
 import 'package:my_theraphy/styles/typography_collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -21,9 +22,16 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future<void> saveUserData() async {
     if (nameController.text.isNotEmpty) {
+      // Update nama pengguna
       await profileController.updateUserName(nameController.text);
       await profileController.loadProfileData(); // Pastikan data diperbarui
-      Get.offAllNamed('/home'); // Navigasi ke halaman utama
+
+      // Update isFirstRun di SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isFirstRun', false);
+
+      // Navigasi ke halaman utama
+      Get.offAllNamed('/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nama tidak boleh kosong!")),
