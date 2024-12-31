@@ -151,9 +151,8 @@ class ObatController extends GetxController {
     int jumlah,
     int dosis,
     List<String> waktu,
-    bool isAlarm, [
-    List<String>? waktuAlarm, // Bersifat opsional
-  ]) async {
+    bool isAlarm,
+  ) async {
     if (startDate.value == null || endDate.value == null) {
       Get.snackbar(
         "Error",
@@ -171,6 +170,9 @@ class ObatController extends GetxController {
       currentDate = currentDate.add(const Duration(days: 1));
     }
 
+    print("Waktu Alarm di saveNewObat sebelum pembuatan objek: $waktu");
+
+    // Buat objek Obat
     final newObat = Obat(
       nama: nama,
       tanggalMulai: startDate.value!,
@@ -179,9 +181,11 @@ class ObatController extends GetxController {
       dosis: dosis,
       waktu: waktu,
       isAlarm: isAlarm,
-      waktuAlarm: isAlarm ? waktuAlarm : null, // Nilai null jika alarm mati
+      waktuAlarm: isAlarm ? waktu : null, // Pastikan waktuAlarm diteruskan
       tanggalKonsumsi: tanggalKonsumsi,
     );
+
+    print("Waktu Alarm di objek Obat: ${newObat.waktuAlarm}");
 
     await addObat(newObat);
 

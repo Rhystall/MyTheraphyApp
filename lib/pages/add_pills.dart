@@ -151,24 +151,18 @@ class AddPillsPage extends StatelessWidget {
                     ),
                     child: GestureDetector(
                       onTap: () async {
-                        obatController
-                            .updateJenisObat(jenisObatController.text);
-                        obatController
-                            .updateJumlahPill(jumlahPillController.text);
-                        obatController
-                            .updateDosisPerHari(dosisPerHariController.text);
-
                         final result = await Get.to(() => AddSchedulePage(
                               initialStartDate: obatController.startDate.value,
                               initialEndDate: obatController.endDate.value,
                             ));
 
                         if (result != null) {
-                          print("Data diterima: $result"); // Tambahkan log
+                          print("Data diterima dari AddSchedulePage: $result");
                           obatController.updateStartDate(result['startDate']);
                           obatController.updateEndDate(result['endDate']);
                           isAlarm = result['useAlarm'] ?? false;
                           waktuAlarm = result['waktuAlarm'] ?? [];
+                          print("Waktu Alarm setelah update: $waktuAlarm");
                         } else {
                           print("Tidak ada data diterima dari AddSchedulePage");
                         }
@@ -213,6 +207,9 @@ class AddPillsPage extends StatelessWidget {
                     return;
                   }
 
+                  print(
+                      "Waktu Alarm yang diteruskan ke saveNewObat: $waktuAlarm");
+
                   if (mode == 'add') {
                     obatController.saveNewObat(
                       jenisObat,
@@ -234,16 +231,7 @@ class AddPillsPage extends StatelessWidget {
                     obatController.updateObat(existingObat!);
                   }
 
-                  // Bersihkan data
                   obatController.clearData();
-                  jenisObatController.clear();
-                  jumlahPillController.clear();
-                  dosisPerHariController.clear();
-
-                  // Panggil fetchObat sebelum kembali
-                  obatController.fetchObat();
-
-                  // Kembali ke halaman HomePage
                   Get.offAllNamed('/home');
                 },
               ),

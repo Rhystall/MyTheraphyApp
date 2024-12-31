@@ -255,16 +255,23 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     return;
                   }
 
-                  print("Mengirim data: $tanggalMulai hingga $tanggalBerakhir");
-                  Get.back(result: {
-                    'startDate': tanggalMulai,
-                    'endDate': tanggalBerakhir,
-                    'useAlarm': useAlarm,
-                    'waktuAlarm': waktuAlarms
-                        .map((time) =>
-                            "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}")
-                        .toList(),
-                  });
+                  // Konversi waktu alarm menjadi string
+                  final waktuAlarmString = waktuAlarms
+                      .map((time) =>
+                          "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}")
+                      .toList();
+
+                  print("Waktu Alarm yang dikirim: $waktuAlarmString");
+
+                  // Kirim data kembali ke AddPillsPage
+                  Get.back(
+                    result: {
+                      'startDate': tanggalMulai,
+                      'endDate': tanggalBerakhir,
+                      'useAlarm': useAlarm,
+                      'waktuAlarm': waktuAlarmString,
+                    },
+                  );
                 },
               ),
             ),

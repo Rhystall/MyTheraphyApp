@@ -24,6 +24,7 @@ class Obat {
   });
 
   Map<String, dynamic> toJson() {
+    print("toJson() -> Waktu Alarm: $waktuAlarm");
     return {
       'id': id,
       'nama': nama,
@@ -41,6 +42,7 @@ class Obat {
   }
 
   factory Obat.fromJson(Map<String, dynamic> json) {
+    print("fromJson() -> Waktu Alarm sebelum parsing: ${json['waktuAlarm']}");
     return Obat(
       id: json['id'],
       nama: json['nama'],

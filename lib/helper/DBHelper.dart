@@ -72,6 +72,7 @@ class DBHelper {
   /// Menambahkan data obat ke tabel
   static Future<int> insertObat(Obat obat) async {
     final db = await getDatabase();
+    print("Insert Obat ke Database: ${obat.toJson()}");
     return await db.insert('obat', obat.toJson());
   }
 
