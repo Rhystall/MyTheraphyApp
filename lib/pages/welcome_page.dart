@@ -1,12 +1,46 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:my_theraphy/controllers/profile_controller.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WelcomePage extends StatelessWidget {
-  final ProfileController profileController = Get.put(ProfileController());
+class WelcomePage extends StatefulWidget {
+  const WelcomePage({Key? key}) : super(key: key);
+
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
   final PageController pageController = PageController();
+  final TextEditingController nameController = TextEditingController();
+  int currentIndex = 0;
+  String profileImagePath = '';
+
+  Future<void> updateProfileImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        profileImagePath = pickedFile.path;
+      });
+    }
+  }
+
+  Future<void> saveUserData() async {
+    if (nameController.text.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userName', nameController.text);
+      await prefs.setString('profileImagePath', profileImagePath);
+      await prefs.setBool('isFirstRun', false);
+
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nama tidak boleh kosong!")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +51,9 @@ class WelcomePage extends StatelessWidget {
             child: PageView(
               controller: pageController,
               onPageChanged: (index) {
-                profileController.userName.value =
-                    profileController.userName.value;
+                setState(() {
+                  currentIndex = index;
+                });
               },
               children: [
                 buildSlide(
@@ -75,49 +110,34 @@ class WelcomePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Obx(() {
-            final imagePath = profileController.profileImagePath.value;
-            return GestureDetector(
-              onTap: () async {
-                await profileController.updateProfileImage();
-              },
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey[300],
-                backgroundImage:
-                    imagePath.isNotEmpty ? FileImage(File(imagePath)) : null,
-                child: imagePath.isEmpty
-                    ? const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.grey,
-                      )
-                    : null,
-              ),
-            );
-          }),
+          GestureDetector(
+            onTap: updateProfileImage,
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey[300],
+              backgroundImage: profileImagePath.isNotEmpty
+                  ? FileImage(File(profileImagePath))
+                  : null,
+              child: profileImagePath.isEmpty
+                  ? const Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.grey,
+                    )
+                  : null,
+            ),
+          ),
           const SizedBox(height: 20),
-          Obx(() => TextField(
-                onChanged: (value) => profileController.updateUserName(value),
-                controller: TextEditingController()
-                  ..text = profileController.userName.value,
-                decoration: const InputDecoration(
-                  labelText: "Nama",
-                  border: OutlineInputBorder(),
-                ),
-              )),
+          TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: "Nama",
+              border: OutlineInputBorder(),
+            ),
+          ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () async {
-              if (profileController.userName.value.isNotEmpty) {
-                await profileController
-                    .updateUserName(profileController.userName.value);
-                Get.offAllNamed('/home');
-              } else {
-                Get.snackbar("Error", "Nama tidak boleh kosong!",
-                    snackPosition: SnackPosition.BOTTOM);
-              }
-            },
+            onPressed: saveUserData,
             child: const Text("Selesai"),
           ),
         ],
@@ -135,29 +155,22 @@ class WelcomePage extends StatelessWidget {
             onPressed: () => pageController.jumpToPage(2),
             child: const Text("SKIP"),
           ),
-          Obx(() {
-            final currentIndex = pageController.hasClients
-                ? pageController.page?.round() ?? 0
-                : 0;
-            return Row(
-              children: List.generate(3, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: CircleAvatar(
-                    radius: 5,
-                    backgroundColor:
-                        currentIndex == index ? Colors.black : Colors.grey,
-                  ),
-                );
-              }),
-            );
-          }),
+          Row(
+            children: List.generate(3, (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: CircleAvatar(
+                  radius: 5,
+                  backgroundColor:
+                      currentIndex == index ? Colors.black : Colors.grey,
+                ),
+              );
+            }),
+          ),
           TextButton(
             onPressed: () {
-              if (pageController.page?.round() == 2) {
-                profileController
-                    .updateUserName(profileController.userName.value);
-                Get.offAllNamed('/home');
+              if (currentIndex == 2) {
+                saveUserData();
               } else {
                 pageController.nextPage(
                   duration: const Duration(milliseconds: 300),
