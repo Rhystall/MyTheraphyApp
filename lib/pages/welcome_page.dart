@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:my_theraphy/controllers/profile_controller.dart';
+import 'package:my_theraphy/styles/color_collection.dart';
+import 'package:my_theraphy/styles/typography_collection.dart';
 
 class WelcomePage extends StatefulWidget {
-  const WelcomePage({Key? key}) : super(key: key);
+  const WelcomePage({super.key});
 
   @override
   State<WelcomePage> createState() => _WelcomePageState();
@@ -14,27 +16,14 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final PageController pageController = PageController();
   final TextEditingController nameController = TextEditingController();
+  final ProfileController profileController = Get.put(ProfileController());
   int currentIndex = 0;
-  String profileImagePath = '';
-
-  Future<void> updateProfileImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        profileImagePath = pickedFile.path;
-      });
-    }
-  }
 
   Future<void> saveUserData() async {
     if (nameController.text.isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userName', nameController.text);
-      await prefs.setString('profileImagePath', profileImagePath);
-      await prefs.setBool('isFirstRun', false);
-
-      Navigator.pushReplacementNamed(context, '/home');
+      await profileController.updateUserName(nameController.text);
+      await profileController.loadProfileData(); // Pastikan data diperbarui
+      Get.offAllNamed('/home'); // Navigasi ke halaman utama
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nama tidak boleh kosong!")),
@@ -90,13 +79,13 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 20),
           Text(
             title,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TypographyCollection.h1,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           Text(
             description,
-            style: const TextStyle(fontSize: 16),
+            style: TypographyCollection.h2,
             textAlign: TextAlign.center,
           ),
         ],
@@ -106,39 +95,63 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Widget buildProfileInputSlide() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap: updateProfileImage,
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.grey[300],
-              backgroundImage: profileImagePath.isNotEmpty
-                  ? FileImage(File(profileImagePath))
-                  : null,
-              child: profileImagePath.isEmpty
-                  ? const Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.grey,
-                    )
-                  : null,
-            ),
+          Text(
+            "Mulai dengan mengisi nama dan foto profilmu",
+            style: TypographyCollection.h1,
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
+          GestureDetector(
+            onTap: profileController.updateProfileImage,
+            child: Obx(() {
+              return CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: profileController.profileImagePath.isNotEmpty
+                    ? FileImage(File(profileController.profileImagePath.value))
+                    : null,
+                child: profileController.profileImagePath.isEmpty
+                    ? const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.grey,
+                      )
+                    : null,
+              );
+            }),
+          ),
+          const SizedBox(height: 30),
           TextField(
             controller: nameController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: "Nama",
-              border: OutlineInputBorder(),
+              labelStyle: const TextStyle(color: Colors.grey),
+              filled: true,
+              fillColor: Colors.grey[100],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           ElevatedButton(
             onPressed: saveUserData,
-            child: const Text("Selesai"),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              backgroundColor: ColorCollections.primaryDarkBlue,
+            ),
+            child: const Text(
+              "Selesai",
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -153,7 +166,9 @@ class _WelcomePageState extends State<WelcomePage> {
         children: [
           TextButton(
             onPressed: () => pageController.jumpToPage(2),
-            child: const Text("SKIP"),
+            child: const Text(
+              "SKIP",
+            ),
           ),
           Row(
             children: List.generate(3, (index) {
