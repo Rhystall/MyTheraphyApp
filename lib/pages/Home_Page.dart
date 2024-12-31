@@ -57,6 +57,9 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('Obat Hari Ini', style: TypographyCollection.h1),
           ),
+          SizedBox(
+            height: 16,
+          ),
           // List Obat
           Expanded(
             child: Obx(() {
@@ -72,6 +75,7 @@ class HomePage extends StatelessWidget {
               }
 
               return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: obatHariIni.length,
                 itemBuilder: (context, index) {
                   final obat = obatHariIni[index];
@@ -96,7 +100,7 @@ class HomePage extends StatelessWidget {
                       if (obat.tanggalKonsumsi.isEmpty) {
                         obatController.deleteObat(obat);
                       } else {
-                        obatController.allObat.refresh(); // Tambahkan refresh
+                        obatController.allObat.refresh();
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,18 +109,66 @@ class HomePage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.grey[200],
-                        child: const Icon(Icons.medical_services_outlined,
-                            color: Colors.black),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: ColorCollections.accentGray,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      title: Text(obat.nama),
-                      subtitle: Text(
-                          "${obat.jumlah} pill - ${obat.waktu.join(", ")}"),
-                      trailing: obat.isAlarm
-                          ? const Icon(Icons.alarm_on, color: Colors.green)
-                          : const Icon(Icons.alarm_off, color: Colors.grey),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.white,
+                            child: const Icon(Icons.medical_services_outlined,
+                                color: Colors.black),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${obat.jumlah} pill, ${obat.dosis} kali per hari",
+                                  style: TypographyCollection.sh2.copyWith(
+                                      color: Colors.grey, fontSize: 16),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  obat.nama,
+                                  style: TypographyCollection.h1.copyWith(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      color: obat.isAlarm
+                                          ? Colors.green
+                                          : Colors.black,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      obat.isAlarm &&
+                                              obat.waktuAlarm != null &&
+                                              obat.waktuAlarm!.isNotEmpty
+                                          ? "${obat.waktuAlarm!.join(", ")}"
+                                          : "${obat.tanggalMulai.day}-${obat.tanggalMulai.month}-${obat.tanggalMulai.year}",
+                                      style: TypographyCollection.sh1.copyWith(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

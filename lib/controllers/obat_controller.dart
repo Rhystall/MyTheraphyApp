@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:my_theraphy/controllers/date_controller.dart';
+import 'package:my_theraphy/helper/notification_helper.dart'; // Import NotificationHelper
 import '../models/obat.dart';
 import '../helper/DBHelper.dart';
 
@@ -92,6 +93,14 @@ class ObatController extends GetxController {
 
   Future<void> deleteObat(Obat obat) async {
     if (obat.id != null) {
+      // Batalkan semua notifikasi terkait obat
+      if (obat.waktuAlarm != null) {
+        for (String waktuAlarm in obat.waktuAlarm!) {
+          final id = generateNotificationId(obat, waktuAlarm);
+          await NotificationHelper.cancelNotification(id);
+        }
+      }
+
       await DBHelper.deleteObat(obat.id!);
       allObat.remove(obat);
       allObat.refresh();
@@ -189,6 +198,34 @@ class ObatController extends GetxController {
 
     await addObat(newObat);
 
+    // Jadwalkan alarm jika isAlarm aktif
+    if (isAlarm && waktu.isNotEmpty) {
+      for (String waktuAlarm in waktu) {
+        final parsedTime = waktuAlarm.split(':');
+        if (parsedTime.length == 2) {
+          final hour = int.parse(parsedTime[0]);
+          final minute = int.parse(parsedTime[1]);
+
+          for (DateTime tanggal in tanggalKonsumsi) {
+            final DateTime alarmTime = DateTime(
+              tanggal.year,
+              tanggal.month,
+              tanggal.day,
+              hour,
+              minute,
+            );
+
+            await NotificationHelper.scheduleNotification(
+              id: generateNotificationId(newObat, waktuAlarm),
+              title: "Ingat minum obat",
+              body: "Saatnya minum obat $nama",
+              scheduledTime: alarmTime,
+            );
+          }
+        }
+      }
+    }
+
     // Reset tanggal setelah menyimpan obat
     startDate.value = null;
     endDate.value = null;
@@ -198,5 +235,9 @@ class ObatController extends GetxController {
       "$nama berhasil ditambahkan",
       snackPosition: SnackPosition.BOTTOM,
     );
+  }
+
+  int generateNotificationId(Obat obat, String waktuAlarm) {
+    return obat.hashCode ^ waktuAlarm.hashCode;
   }
 }

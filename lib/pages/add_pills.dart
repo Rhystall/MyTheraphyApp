@@ -21,6 +21,24 @@ class AddPillsPage extends StatelessWidget {
   bool isAlarm = false;
   List<String> waktuAlarm = [];
 
+  String getMonthName(int month) {
+    const months = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember"
+    ];
+    return months[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     // Inisialisasi data jika mode adalah 'update'
@@ -117,57 +135,100 @@ class AddPillsPage extends StatelessWidget {
             Obx(() {
               final startDate = obatController.startDate.value;
               final endDate = obatController.endDate.value;
+
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (startDate != null && endDate != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(
-                        "Dari ${startDate.day}-${startDate.month}-${startDate.year} "
-                        "sampai ${endDate.day}-${endDate.month}-${endDate.year}",
-                        style: TypographyCollection.sh1,
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 10,
                       ),
-                    ),
-                  if (isAlarm && waktuAlarm.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: waktuAlarm.map((time) {
-                          return Text(
-                            "Alarm: $time",
-                            style: TypographyCollection.sh1,
-                          );
-                        }).toList(),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: ColorCollections.accentGray,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Text(
+                                  "${startDate.day} ~ ${endDate.day} ${getMonthName(startDate.month).toUpperCase()} ${startDate.year}",
+                                  style: TypographyCollection.h2.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time_rounded,
+                                    color:
+                                        isAlarm ? Colors.green : Colors.black,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    waktuAlarm.isNotEmpty
+                                        ? waktuAlarm.join(", ")
+                                        : "Tidak ada alarm",
+                                    style: TypographyCollection.h1.copyWith(
+                                      color:
+                                          isAlarm ? Colors.green : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          // Tombol Hapus Tanggal
+                          IconButton(
+                            icon: Icon(Icons.clear, color: Colors.red),
+                            onPressed: () {
+                              // Hapus data tanggal dan waktu
+                              obatController.updateStartDate(null);
+                              obatController.updateEndDate(null);
+                              waktuAlarm.clear();
+                              isAlarm = false;
+
+                              // Notifikasi ke user
+                              Get.snackbar(
+                                "Tanggal Dihapus",
+                                "Silakan pilih ulang tanggal dan waktu.",
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    width: 150,
-                    decoration: BoxDecoration(
-                      color: ColorCollections.accentGray,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: GestureDetector(
-                      onTap: () async {
-                        final result = await Get.to(() => AddSchedulePage(
-                              initialStartDate: obatController.startDate.value,
-                              initialEndDate: obatController.endDate.value,
-                            ));
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Get.to(() => AddSchedulePage(
+                            initialStartDate: obatController.startDate.value,
+                            initialEndDate: obatController.endDate.value,
+                          ));
 
-                        if (result != null) {
-                          print("Data diterima dari AddSchedulePage: $result");
-                          obatController.updateStartDate(result['startDate']);
-                          obatController.updateEndDate(result['endDate']);
-                          isAlarm = result['useAlarm'] ?? false;
-                          waktuAlarm = result['waktuAlarm'] ?? [];
-                          print("Waktu Alarm setelah update: $waktuAlarm");
-                        } else {
-                          print("Tidak ada data diterima dari AddSchedulePage");
-                        }
-                      },
+                      if (result != null) {
+                        obatController.updateStartDate(result['startDate']);
+                        obatController.updateEndDate(result['endDate']);
+                        isAlarm = result['useAlarm'] ?? false;
+                        waktuAlarm = result['waktuAlarm'] ?? [];
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      width: 150,
+                      decoration: BoxDecoration(
+                        color: ColorCollections.accentGray,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.add,
                               color: ColorCollections.accentDarkBlack),
@@ -183,6 +244,7 @@ class AddPillsPage extends StatelessWidget {
                 ],
               );
             }),
+
             const Spacer(),
 
             // Tombol Selesai
