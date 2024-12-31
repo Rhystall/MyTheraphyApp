@@ -24,13 +24,9 @@ void main() async {
   Get.put(DateSelectorController());
   Get.put(ObatController());
 
-  // Tentukan apakah ini adalah pertama kali aplikasi dijalankan
+// Tentukan apakah ini adalah pertama kali aplikasi dijalankan
   final prefs = await SharedPreferences.getInstance();
   final isFirstRun = prefs.getBool('isFirstRun') ?? true;
-
-  if (isFirstRun) {
-    await prefs.setBool('isFirstRun', false);
-  }
 
   runApp(MyApp(isFirstRun: isFirstRun));
 }
