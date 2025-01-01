@@ -198,7 +198,7 @@ class AddPillsPage extends StatelessWidget {
                               Get.snackbar(
                                 "Tanggal Dihapus",
                                 "Silakan pilih ulang tanggal dan waktu.",
-                                snackPosition: SnackPosition.BOTTOM,
+                                snackPosition: SnackPosition.TOP,
                               );
                             },
                           ),
@@ -264,7 +264,7 @@ class AddPillsPage extends StatelessWidget {
                     Get.snackbar(
                       "Error",
                       "Harap isi semua field dan pilih tanggal mulai & akhir",
-                      snackPosition: SnackPosition.BOTTOM,
+                      snackPosition: SnackPosition.TOP,
                     );
                     return;
                   }

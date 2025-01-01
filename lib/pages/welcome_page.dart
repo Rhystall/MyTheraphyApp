@@ -55,7 +55,8 @@ class _WelcomePageState extends State<WelcomePage> {
               children: [
                 buildSlide(
                   title: "Selamat Datang di MyTherapy",
-                  description: "Aplikasi yang membantu mengelola kesehatanmu.",
+                  description:
+                      "Pengingat obat dan kesehatan dalam satu genggaman",
                   imagePath: "lib/assets/images/welcome1.png",
                 ),
                 buildSlide(

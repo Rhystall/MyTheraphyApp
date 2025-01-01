@@ -166,7 +166,7 @@ class ObatController extends GetxController {
       Get.snackbar(
         "Error",
         "Tanggal mulai dan akhir harus diisi",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }
@@ -233,7 +233,7 @@ class ObatController extends GetxController {
     Get.snackbar(
       "Sukses",
       "$nama berhasil ditambahkan",
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
   }
 

@@ -241,7 +241,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     Get.snackbar(
                       "Error",
                       "Harap pilih tanggal mulai dan berakhir.",
-                      snackPosition: SnackPosition.BOTTOM,
+                      snackPosition: SnackPosition.TOP,
                     );
                     return;
                   }
@@ -250,7 +250,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     Get.snackbar(
                       "Error",
                       "Tanggal mulai tidak boleh setelah tanggal berakhir.",
-                      snackPosition: SnackPosition.BOTTOM,
+                      snackPosition: SnackPosition.TOP,
                     );
                     return;
                   }
